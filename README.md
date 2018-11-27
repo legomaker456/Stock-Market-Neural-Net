@@ -1,3 +1,3 @@
 # Stock Market Nerual Net
-Resources:
+Resources:  
 http://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
