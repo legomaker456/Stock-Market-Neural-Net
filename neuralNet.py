@@ -1,6 +1,3 @@
-import np
-
-<<<<<<< HEAD
 class NeuralNetwork:
 	def __init__(self, x, y):
 		self.input      = x
@@ -21,3 +18,5 @@ class NeuralNetwork:
 		# update the weights with the derivative (slope) of the loss function
 		self.weights1 += d_weights1
 		self.weights2 += d_weights2
+
+NeuralNetwork(0, 1)
