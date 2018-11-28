@@ -5,4 +5,4 @@ class NeuralNet:
         self.input = x
         self.weight1 = np.random.rand(self.input.shape[1],4)
 
-
+    #hehe bobo
