@@ -1,8 +1,8 @@
 import numpy as np 
       
 # Each row is a training example, each column is a feature  [X1, X2, X3]
-x = np.array(([2,4,6], [1,2,3], [2,7,12], [1,4,7]), dtype = float)
-y = np.array(([2], [1], [5], [3]), dtype = float)
+x = np.array(([.2,.4,.6], [.1,.2,.3], [.1,.5,.9], [.1,.4,.7]), dtype = float)
+y = np.array(([.2], [.1], [.4], [.3]), dtype = float)
 
 # Define useful functions    
 
@@ -29,11 +29,14 @@ class NeuralNetwork:
 		return self.layer2
 
 	def backprop(self):
-		d_weights2 = np.dot(self.layer1.T, 4 * (self.y - self.output)*sigmoid_derivative(self.output))
-		d_weights1 = np.dot(self.input.T, np.dot(4 * (self.y - self.output)*sigmoid_derivative(self.output), self.weights2.T)*sigmoid_derivative(self.layer1))
-
+		d_weights2 = np.dot(self.layer1.T, 2 * (self.y - self.output)*sigmoid_derivative(self.output))
+		d_weights1 = np.dot(self.input.T, np.dot(2 * (self.y - self.output)*sigmoid_derivative(self.output), self.weights2.T)*sigmoid_derivative(self.layer1))
+		#print(d_weights1)
+		#print(d_weights2)
 		self.weights1 += d_weights1
 		self.weights2 += d_weights2
+		#print("w1:", self.weights1)
+		#print("w2:", self.weights2)
 
 	def train(self, X, y):
 		self.output = self.feedforward()
