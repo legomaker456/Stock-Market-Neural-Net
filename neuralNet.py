@@ -54,8 +54,8 @@ class NeuralNetwork:
 		print("Output: \n" + str(self.feedforward(xPredicted)))
 
 neuralNet = NeuralNetwork(x, y)
-for i in range(1000000): # trains the NN 1,000 times
-	if i % 100000 == 0: 
+for i in range(10000): # trains the NN 1,000 times
+	if i % 1000 == 0: 
 		print("for iteration # " + str(i) + "\n")
 		print("Input : \n" + str(x))
 		print("Actual Output: \n" + str(y))
