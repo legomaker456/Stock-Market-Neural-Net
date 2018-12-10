@@ -22,3 +22,8 @@ class Table:
             if predicate(row): #checks if row is to be updated
                 for column, new_value in updates.iteritems(): #
                     row[column] = new_value #replaces appropriate fields with the new values
+    
+    def delete(self, predicate=lambda row: True):
+        """deletes all rows matching predicate
+        if there is no predicate, all rows are deleted"""
+        
