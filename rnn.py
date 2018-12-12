@@ -11,3 +11,7 @@ def tanh(t):
 
 def tanh_derivative(p):
 	return 1.0 - np.tanh(p) ** 2
+
+class lstm:
+	def __init__(self, x, h):
+		
