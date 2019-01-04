@@ -9,38 +9,44 @@ def convert_to_epoch(date):
 	return datetime.strptime(date, "%Y/%m/%d").timestamp()
 
 # Data handling
-with open("appl.csv", 'r') as file:
+with open("goog.csv", 'r') as file:
 	reader = csv.reader(file)
 
 	data = list(reader)
-	data = [r for r in data if r != data[0] and r != data[1]]
+	data = [r for r in data if r != data[0] and r != data[3] and r != data[1]]
 	data = list(reversed(data))
 	epoch_list = list()
-	price_list = list()
+	open_list = list()
+	close_list = list()
 	for i in range(0, len(data)):
 		data[i][0] = convert_to_epoch(data[i][0])
 		epoch_list.append([data[i][0]])
-		price_list.append([data[i][1]])
-
-# Each row is a training example, each column is a feature  [X1, X2, X3]
-x = np.array((epoch_list), dtype = float)
-y = np.array((price_list), dtype = float)
+		open_list.append([data[i][3]])
+		close_list.append([data[i][1]])
 
 # Scale inputs
-input_scaler = MinMaxScaler()
-x = input_scaler.fit_transform(x)
+epoch_scaler = MinMaxScaler()
+epoch_list = epoch_scaler.fit_transform(epoch_list)
+
+open_scaler = MinMaxScaler()
+open_list = open_scaler.fit_transform(open_list)
+
+# Each row is a training example, each column is a feature  [X1, X2, X3]
+x = np.column_stack((epoch_list, open_list))
+y = np.array((close_list), dtype = float)
 
 # Scale outputs
 output_scaler = MinMaxScaler()
 y = output_scaler.fit_transform(y)
 
-xPredicted = np.array((convert_to_epoch("2018/12/28")), dtype = float)
-xPredicted *= float(input_scaler.scale_)
+xPredicted = np.array((convert_to_epoch("2019/01/04"), 1041), dtype = float)
+xPredicted[0] *= float(epoch_scaler.scale_)
+xPredicted[1] *= float(open_scaler.scale_)
 
 class Neural_Network(object):
 	def __init__(self):
 		# parameters
-		self.input_layer_size = 1
+		self.input_layer_size = 2
 		self.output_layer_size = 1
 		self.hidden_layer_1_size = 1024
 		self.hidden_layer_2_size = 512
@@ -134,8 +140,8 @@ class Neural_Network(object):
 
 	def predict(self):
 		print("Predicted data based on trained weights: ")
-		print("Input (scaled): \n" + str(xPredicted / input_scaler.scale_))
-		print("Output: \n" + str(self.forward(xPredicted) / output_scaler.scale_))
+		print("Input (scaled): \n" + str(xPredicted[0] / epoch_scaler.scale_) + ", " + str(xPredicted[1] / open_scaler.scale_))
+		print("Output: \n" + str(self.forward(xPredicted) / output_scaler.scale_ * 10))
 
 	def fit(self, x, y, epochs, batch_size, learning_rate=1e-3):
 		self.learning_rate = learning_rate
@@ -153,19 +159,19 @@ class Neural_Network(object):
 			if (i + 1) % 10 == 0:
 				print("Loss: \n" + str(np.mean(np.square(y - NN.forward(x))))) # mean sum squared loss
 
-		
+	
 NN = Neural_Network()
-NN.learning_rate = 1
-	# if i % 100 == 0:
-	# 	print("# " + str(i) + "\n")
-	# 	print("Input (scaled): \n" + str(x_))
-	# 	print("Actual Output: \n" + str(y_))
-	# 	print("Predicted Output: \n" + str(NN.forward(x_)))
-	# 	print("\n")
-# NN.fit(x, y, 100, 15, 1e-3)
+NN.learning_rate = 0.1231
+# 	if i % 100 == 0:
+# 		print("# " + str(i) + "\n")
+# 		print("Input (scaled): \n" + str(x_))
+# 		print("Actual Output: \n" + str(y_))
+# 		print("Predicted Output: \n" + str(NN.forward(x_)))
+# 		print("\n")
+# # NN.fit(x, y, 100, 15, 1e-3)
 for i in range(1000):
 	if i % 100 == 0:
-		print("Loss: \n" + str(np.mean(np.square(y - NN.forward(x))))) # mean sum squared loss
+		print("Loss: \n" + str(np.mean(np.square(y * output_scaler.scale_ - NN.forward(x) * output_scaler.scale_)))) # mean sum squared loss
 
 	NN.train(x, y)
 
