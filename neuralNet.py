@@ -19,35 +19,26 @@ with open("data_stocks.csv", 'r') as file:
 
 	for i in range(0, len(data)):
 		epoch_list[0].append(data[i][0])
-		price_list[0].append(data[i][1])
-
-	# data = list(reader)
-	# data = [r for r in data if r != data[0] and r != data[3] and r != data[1]]
-	# data = list(reversed(data))
-	# epoch_list = list()
-	# open_list = list()
-	# close_list = list()
-	# for i in range(0, len(data)):
-	# 	data[i][0] = convert_to_epoch(data[i][0])
-	# 	epoch_list.append([data[i][0]])
-	# 	open_list.append([data[i][3]])
-	# 	close_list.append([data[i][1]])
+		price_list[0].append(data[i][11])
 
 # Scale inputs
+x = np.array((epoch_list), dtype = float)
+n = len(x[0])
+x = x[0][0000:n]
+x = x.reshape(len(x), 1)
 epoch_scaler = MinMaxScaler()
-epoch_list = epoch_scaler.fit_transform(epoch_list)
-
-x = np.array((epoch_list.T), dtype = float)
+epoch_scaler.fit_transform(x)
 
 # Scale outputs
+y = np.array((price_list), dtype = float)
+n = len(y[0])
+y = y[0][0000:n]
+y = y.reshape(len(y), 1)
 price_scaler = MinMaxScaler()
-price_list = price_scaler.fit_transform(price_list)
+price_scaler.fit_transform(y)
 
-y = np.array((price_list.T), dtype = float)
-
-test_input = [1491226200 * price_scaler.scale_]
-xPredicted = np.array((test_input), dtype = float).T #(convert_to_epoch("2019/01/04")
-print(len(xPredicted))
+# Predicted inputs
+xPredicted = np.array([1504209600 * epoch_scaler.scale_], dtype = float).reshape(1, 1)
 
 class Neural_Network(object):
 	def __init__(self):
@@ -168,16 +159,9 @@ class Neural_Network(object):
 	
 NN = Neural_Network()
 NN.learning_rate = 0.1231
-# 	if i % 100 == 0:
-# 		print("# " + str(i) + "\n")
-# 		print("Input (scaled): \n" + str(x_))
-# 		print("Actual Output: \n" + str(y_))
-# 		print("Predicted Output: \n" + str(NN.forward(x_)))
-# 		print("\n")
-# # NN.fit(x, y, 100, 15, 1e-3)
 for i in range(10):
 	if i % 10 == 0:
-		print("Loss: \n" + str(np.mean(np.square(y * price_scaler.scale_ - NN.forward(x) * price_scaler.scale_)))) # mean sum squared loss
+		print("Loss: \n" + str(np.mean(np.square(y / price_scaler.scale_ - NN.forward(x) / price_scaler.scale_)))) # mean sum squared loss
 
 	NN.train(x, y)
 
