@@ -13,13 +13,17 @@ with open("data_stocks.csv", 'r') as file:
 	reader = csv.reader(file)
 
 	data = list(reader)
+	stockName = input("Please input the NASDAQ index name of the company you wish to predict (in all caps)\n")
+	stockName = "NASDAQ." + stockName
+	stockListIndex = data[0].index(stockName)
+
 	epoch_list = [[]]
 	price_list = [[]]
 	data = [r for r in data if r != data[0]]
 
 	for i in range(0, len(data)):
 		epoch_list[0].append(data[i][0])
-		price_list[0].append(data[i][11])
+		price_list[0].append(data[i][stockListIndex])
 
 # Scale inputs
 x = np.array((epoch_list), dtype = float)
