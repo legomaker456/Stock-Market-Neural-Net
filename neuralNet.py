@@ -2,6 +2,7 @@ import numpy as np
 from datetime import datetime
 import os
 import csv
+import sys
 from sklearn.preprocessing import MinMaxScaler
 
 # Conversion to epoch
@@ -11,11 +12,33 @@ def convert_to_epoch(date):
 # Data handling
 with open("data_stocks.csv", 'r') as file:
 	reader = csv.reader(file)
-
 	data = list(reader)
-	stockName = input("Please input the NASDAQ index name of the company you wish to predict (in all caps)\n")
-	stockName = "NASDAQ." + stockName
-	stockListIndex = data[0].index(stockName)
+
+	stock_input = input("Which stock would you like to predict: ")
+
+	if(stock_input.lower() == "sp500"):
+		print(stock_input.upper())
+		print(data[0][1])
+		stock_index = data[0].index(stock_input.upper())
+	else:
+		try:
+			temp_stock = "NASDAQ." + stock_input
+			stock_index = data[0].index(temp_stock.upper())
+		except:
+			try:
+				temp_stock = "NYSE." + stock_input
+				stock_index = data[0].index(temp_stock.upper())
+			except:
+				print("Invalid stock")
+				sys.exit()
+
+	date_input = input("What date would you like to predict (Format example: '2018/01/01'): ")
+
+	try:
+		predicted_epoch = convert_to_epoch(date_input)
+	except:
+		print("Invalid date format")
+		sys.exit()
 
 	epoch_list = [[]]
 	price_list = [[]]
@@ -23,26 +46,26 @@ with open("data_stocks.csv", 'r') as file:
 
 	for i in range(0, len(data)):
 		epoch_list[0].append(data[i][0])
-		price_list[0].append(data[i][stockListIndex])
+		price_list[0].append(data[i][stock_index])
 
 # Scale inputs
 x = np.array((epoch_list), dtype = float)
 n = len(x[0])
-x = x[0][0000:n]
+x = x[0][0:n]
 x = x.reshape(len(x), 1)
 epoch_scaler = MinMaxScaler()
-epoch_scaler.fit_transform(x)
+x = epoch_scaler.fit_transform(x)
 
 # Scale outputs
 y = np.array((price_list), dtype = float)
 n = len(y[0])
-y = y[0][0000:n]
+y = y[0][0:n]
 y = y.reshape(len(y), 1)
 price_scaler = MinMaxScaler()
-price_scaler.fit_transform(y)
+y = price_scaler.fit_transform(y)
 
 # Predicted inputs
-xPredicted = np.array([1504209600 * epoch_scaler.scale_], dtype = float).reshape(1, 1)
+xPredicted = np.array([predicted_epoch * epoch_scaler.scale_], dtype = float).reshape(1, 1)
 
 class Neural_Network(object):
 	def __init__(self):
@@ -135,14 +158,10 @@ class Neural_Network(object):
 		o = self.forward(x)
 		self.backward(x, y, o)
 
-	def saveWeights(self):
-		np.savetxt("w1.txt", self.W1, fmt="%s")
-		np.savetxt("w2.txt", self.W2, fmt="%s")
-
 	def predict(self):
 		print("Predicted data based on trained weights: ")
 		print("Input (scaled): \n" + str(xPredicted / epoch_scaler.scale_))
-		print("Output: \n" + str(self.forward(xPredicted) / price_scaler.scale_))
+		print("Output: \n" + str(self.forward(xPredicted) / price_scaler.scale_ * 4.87))
 
 	def fit(self, x, y, epochs, batch_size, learning_rate=1e-3):
 		self.learning_rate = learning_rate
@@ -162,12 +181,11 @@ class Neural_Network(object):
 
 	
 NN = Neural_Network()
-NN.learning_rate = 0.1231
+NN.learning_rate = 0.1
 for i in range(10):
-	if i % 10 == 0:
+	if i % 1 == 0:
 		print("Loss: \n" + str(np.mean(np.square(y / price_scaler.scale_ - NN.forward(x) / price_scaler.scale_)))) # mean sum squared loss
 
 	NN.train(x, y)
 
-NN.saveWeights()
 NN.predict()
