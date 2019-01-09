@@ -13,19 +13,24 @@ def convert_to_epoch(date):
 with open("data_stocks.csv", 'r') as file:
 	reader = csv.reader(file)
 	data = list(reader)
-	
-	stock_input = input("Which SP500 stock would you like to predict: ")
 
-	stock_index = None
-	for c in range(len(data[0])):
-		temp_stock = "NASDAQ." + stock_input
-		if(data[0][c].lower() == temp_stock.lower()):
-			stock_index = c
-			break
+	stock_input = input("Which stock would you like to predict: ")
 
-	if(stock_index == None):
-		print("Invalid stock")
-		sys.exit()
+	if(stock_input.lower() == "sp500"):
+		print(stock_input.upper())
+		print(data[0][1])
+		stock_index = data[0].index(stock_input.upper())
+	else:
+		try:
+			temp_stock = "NASDAQ." + stock_input
+			stock_index = data[0].index(temp_stock.upper())
+		except:
+			try:
+				temp_stock = "NYSE." + stock_input
+				stock_index = data[0].index(temp_stock.upper())
+			except:
+				print("Invalid stock")
+				sys.exit()
 
 	date_input = input("What date would you like to predict (Format example: '2018/01/01'): ")
 
@@ -153,10 +158,6 @@ class Neural_Network(object):
 		o = self.forward(x)
 		self.backward(x, y, o)
 
-	def saveWeights(self):
-		np.savetxt("w1.txt", self.W1, fmt="%s")
-		np.savetxt("w2.txt", self.W2, fmt="%s")
-
 	def predict(self):
 		print("Predicted data based on trained weights: ")
 		print("Input (scaled): \n" + str(xPredicted / epoch_scaler.scale_))
@@ -187,5 +188,4 @@ for i in range(10):
 
 	NN.train(x, y)
 
-NN.saveWeights()
 NN.predict()
